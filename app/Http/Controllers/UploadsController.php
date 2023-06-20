@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Upload;
+use App\Models\FileStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -39,12 +40,20 @@ class UploadsController extends Controller
             );
         }
 
-        $request->user()->uploads()->create([
-            'status' => 'undone',
+        $upload = $request->user()->uploads()->create([
             'upload_path' => $upload_path,
+            'filename' => $request->File('video')->getClientOriginalName(),
         ]);
 
-        // $request->user()->fill($user);
+
+
+        // dd($upload);
+        // dd(FileStatus::find(1)->uploads);
+        // FileStatus::find(1)->uploads()->associate($upload);
+        $upload->file_status()->associate(FileStatus::find(1));
+        $upload->save();
+        // dd($upload->file_status->status);
+
         // $request->user()->save();
 
         return back();

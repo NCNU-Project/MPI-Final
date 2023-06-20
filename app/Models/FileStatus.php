@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Upload extends Model
+class FileStatus extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'upload_path',
-        'filename',
+        'status',
     ];
-    public function file_status() {
-        return $this->belongsTo(FileStatus::class);
+
+    public function uploads(){
+        return $this->hasMany(Upload::class);
     }
 }

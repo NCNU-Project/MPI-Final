@@ -61,13 +61,13 @@
                   <tbody>
                     @foreach($uploads as $upload)
                     <tr class="border-b">
-                      <td class="px-6 py-4">#{{ $upload->id }}</td>
-                            <td class="px-6 py-4 text-left text-blue-600 dark:text-blue-500 hover:underline">
-                                <a href={{ '/storage/' . $upload->upload_path }} target='_blank'> 
-                                    link
-                                </a>
-                            </td>
-                      <td class="px-6 py-4">{{ $upload->status }}</td>
+                        <td class="px-6 py-4">#{{ $upload->id }}</td>
+                        <td class="px-6 py-4 text-left text-blue-600 dark:text-blue-500 hover:underline">
+                            <a href={{ '/storage/' . $upload->upload_path }} target='_blank'> 
+                                {{ $upload->filename }}
+                            </a>
+                        </td>
+                      <td class="px-6 py-4">{{ $upload->file_status->status }}</td>
                     </tr>
                     @endforeach
                   </tbody>
