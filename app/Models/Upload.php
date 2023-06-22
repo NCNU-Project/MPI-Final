@@ -12,8 +12,10 @@ class Upload extends Model
     protected $fillable = [
         'upload_path',
         'filename',
+        'ct_digest',
     ];
-    public function file_status() {
+    public function file_status()
+    {
         return $this->belongsTo(FileStatus::class);
     }
 }
