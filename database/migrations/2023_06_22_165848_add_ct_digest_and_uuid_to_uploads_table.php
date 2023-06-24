@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('uploads', function (Blueprint $table) {
-            //
             $table->string('ct_digest')->nullable();
+            $table->string('uuid')->nullable();
+            $table->dropColumn('upload_path');
         });
     }
 
@@ -24,6 +25,8 @@ return new class extends Migration
     {
         Schema::table('uploads', function (Blueprint $table) {
             $table->dropColumn('ct_digest');
+            $table->dropColumn('uuid')->nullable();
+            $table->string('upload_path');
         });
     }
 };

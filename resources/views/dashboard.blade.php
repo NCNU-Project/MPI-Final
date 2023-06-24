@@ -17,7 +17,7 @@
                         {{ __("Update your video in order to transoding.") }}
                     </p>
                 </header>
-                <form method="post" action="{{ route('upload.create') }}" class='space-y-6' enctype="multipart/form-data" >
+                <form method="post" action="{{ route('upload.create') }}" class='space-y-6' enctype="multipart/form-data">
                     @csrf
                     @method('post')
 
@@ -51,26 +51,32 @@
                 </header>
 
                 <table class="table-auto w-full">
-                  <thead class="border-b">
-                    <tr>
-                      <th class="px-6 py-4 text-left">id</th>
-                      <th class="px-6 py-4 text-left">uploaded files</th>
-                      <th class="px-6 py-4 text-left">status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @foreach($uploads as $upload)
-                    <tr class="border-b">
-                        <td class="px-6 py-4">#{{ $upload->id }}</td>
-                        <td class="px-6 py-4 text-left text-blue-600 dark:text-blue-500 hover:underline">
-                            <a href={{ '/storage/' . $upload->upload_path }} target='_blank'> 
-                                {{ $upload->filename }}
-                            </a>
-                        </td>
-                      <td class="px-6 py-4">{{ $upload->file_status->status }}</td>
-                    </tr>
-                    @endforeach
-                  </tbody>
+                    <thead class="border-b">
+                        <tr>
+                            <th class="px-6 py-4 text-left">id</th>
+                            <th class="px-6 py-4 text-left">uploaded files</th>
+                            <th class="px-6 py-4 text-left">status</th>
+                            <th class="px-6 py-4 text-left">processed files</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($uploads as $upload)
+                        <tr class="border-b">
+                            <td class="px-6 py-4">#{{ $upload->id }}</td>
+                            <td class="px-6 py-4 text-left text-blue-600 dark:text-blue-500 hover:underline">
+                                <a href={{ $upload->upload_path() }} target='_blank'>
+                                    {{ $upload->filename }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 text-left text-blue-600 dark:text-blue-500 hover:underline">
+                                <a href={{ $upload->processed_path() }} target='_blank'>
+                                    {{ $upload->filename }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4">{{ $upload->file_status->status }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
                 </table>
             </div>
         </div>

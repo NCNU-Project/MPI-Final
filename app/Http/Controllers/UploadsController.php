@@ -16,11 +16,11 @@ class UploadsController extends Controller
 {
     public function index(Request $request)
     {
-        // $collection = collect(['account_id' => 1, 'product' => null, 'amount' => 5]);
-        // dd($request->user()->pendingUploads());
+        // update upload status
+        $this->updateUploadStatus($request->user()->pendingUploads());
 
-        // dd($request->user()->uploads());
         $uploads = $request->user()->uploads;
+
         return view('dashboard', [
             'uploads' => $uploads,
         ]);
@@ -37,11 +37,13 @@ class UploadsController extends Controller
             'video' => ['required', 'mimetypes:video/mp4']
         ]);
 
+        // upload file to public storage
         $upload_path = null;
+        $file_uuid = Str::uuid();
         if ($request->hasFile('video')) {
             $upload_path = $request->File('video')->storeAs(
                 'videos',
-                Str::uuid() . '.' . $request->file('video')->getClientOriginalExtension(),
+                $file_uuid . '.' . $request->file('video')->getClientOriginalExtension(),
                 'public'
             );
         }
@@ -50,26 +52,30 @@ class UploadsController extends Controller
         $res = $client->request('POST', 'http://v1.43/containers/create', [
             'json' => [
                 "Image" => "test",
-                "Cmd" => ["-f", $upload_path],
+                "Cmd" => ["-f", $upload_path, "-d", $file_uuid . "-processed.mp4"],
             ],
             'curl' => [
                 CURLOPT_UNIX_SOCKET_PATH => '/var/run/docker.sock'
             ]
         ]);
-        // dd(json_decode($res->getBody()->getContents()));
 
+        // create a docker container
         $upload = $request->user()->uploads()->create([
-            'upload_path' => $upload_path,
+            'uuid' => $file_uuid,
             'filename' => $request->File('video')->getClientOriginalName(),
             "ct_digest" => json_decode($res->getBody()->getContents())->Id,
+        ]);
+
+        // start a docker container
+        $res = $client->request('POST', 'http://v1.43/containers/' . $upload->ct_digest . '/start', [
+            'curl' => [
+                CURLOPT_UNIX_SOCKET_PATH => '/var/run/docker.sock'
+            ]
         ]);
 
         // start execution
         $upload->file_status()->associate(FileStatus::find(2));
         $upload->save();
-        // dd($upload->file_status->status);
-
-        // $request->user()->save();
 
         return back();
     }
@@ -79,13 +85,12 @@ class UploadsController extends Controller
      */
     public function destroy(Request $request)
     {
-        dd(2);
         return 'hello world';
     }
 
-    public function test(Request $request)
+    private function updateUploadStatus($pendingUploads)
     {
-        $uploads = array_values($request->user()->pendingUploads()->map(function ($item) {
+        $uploads = array_values($pendingUploads->map(function ($item) {
             return $item->ct_digest;
         })->toArray());
 
@@ -122,15 +127,7 @@ class UploadsController extends Controller
             return $item->Id;
         }, $exit_abnormally_ct_status);
 
-        // dd($exit_ct_ids);
-        // Upload::whereIn('ct_digest', $exit_ct_ids)->get()->dd();
         Upload::whereIn('ct_digest', $exit_normally_ct_id)->update(['file_status_id' => 3]);
         Upload::whereIn('ct_digest', $exit_abnormally_ct_id)->update(['file_status_id' => 4]);
-        // Upload::where('ct_digest', $exit_ct_ids)->file_status()->associate(FileStatus::find(3));
-
-
-        // dd($uploads->merge(collect(json_decode($res->getBody()->getContents()))));
-        // return back();
-        return 'test';
     }
 }
