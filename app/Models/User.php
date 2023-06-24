@@ -44,7 +44,15 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function uploads(){
+    public function uploads()
+    {
         return $this->hasMany(Upload::class);
+    }
+
+    public function pendingUploads()
+    {
+        return $this->uploads->filter(function ($item) {
+            return $item->file_status_id == 2;
+        });
     }
 }

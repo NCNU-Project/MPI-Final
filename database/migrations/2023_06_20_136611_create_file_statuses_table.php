@@ -23,7 +23,6 @@ return new class extends Migration
             $table->dropColumn('status');
             $table->foreignId('file_status_id')->nullable();
 
-            // $table->foreignId('file_status_id')->constrainted();
             # relations to status table
             $table->foreign('file_status_id')->references('id')->on('file_statuses');
         });

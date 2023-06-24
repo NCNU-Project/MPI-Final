@@ -12,8 +12,22 @@ class Upload extends Model
     protected $fillable = [
         'upload_path',
         'filename',
+        'ct_digest',
+        'uuid',
     ];
-    public function file_status() {
+
+    public function upload_path()
+    {
+        return '/storage/videos/' . $this->uuid . '.mp4';
+    }
+
+    public function processed_path()
+    {
+        return '/storage/videos/' . $this->uuid . '-processed.mp4';
+    }
+
+    public function file_status()
+    {
         return $this->belongsTo(FileStatus::class);
     }
 }
