@@ -10,10 +10,10 @@ class Upload extends Model
     use HasFactory;
 
     protected $fillable = [
-        'upload_path',
         'filename',
         'ct_digest',
         'uuid',
+        'elapsed_time',
     ];
 
     public function upload_path()

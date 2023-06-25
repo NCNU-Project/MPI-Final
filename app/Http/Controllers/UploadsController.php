@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 use GuzzleHttp\Client;
+use Carbon\Carbon;
 
 // use App\Models\User;
 
@@ -49,10 +50,18 @@ class UploadsController extends Controller
         }
 
         // create a docker container
+        // FIXME: there is dirty code
+        // maybe use Model's attribute to handle filename and processed filename is
+        // better then just using hard-coded path.
         $res = $client->request('POST', 'http://v1.43/containers/create', [
             'json' => [
                 "Image" => "test",
-                "Cmd" => ["-f", $upload_path, "-d", $file_uuid . "-processed.mp4"],
+                "Cmd" => ["-f", $upload_path, "-d", 'video/' . $file_uuid . "-processed.mp4"],
+                "HostConfig" => [
+                    "Binds" => [
+                        "/home/efficacy38/Projects/Course/NCNU/Mpi/mpi-final/storage/app/public/videos:/videos"
+                    ]
+                ]
             ],
             'curl' => [
                 CURLOPT_UNIX_SOCKET_PATH => '/var/run/docker.sock'
@@ -123,11 +132,42 @@ class UploadsController extends Controller
         $exit_normally_ct_id = array_map(function ($item) {
             return $item->Id;
         }, $exit_normally_ct_status);
+
         $exit_abnormally_ct_id = array_map(function ($item) {
             return $item->Id;
         }, $exit_abnormally_ct_status);
 
-        Upload::whereIn('ct_digest', $exit_normally_ct_id)->update(['file_status_id' => 3]);
-        Upload::whereIn('ct_digest', $exit_abnormally_ct_id)->update(['file_status_id' => 4]);
+        foreach ($exit_abnormally_ct_id as $ct_id) {
+            # get ct's elapsed time
+            $res = $client->request('GET', 'http://v1.43/containers/' . $ct_id . '/json', [
+                'curl' => [
+                    CURLOPT_UNIX_SOCKET_PATH => '/var/run/docker.sock'
+                ]
+            ]);
+            $ct_info = json_decode($res->getBody()->getContents());
+            $ct_elapsed_time = $ct_info->State->FinishedAt - $ct_info->State->StartedAt;
+            # save to database's uploads table
+            Upload::where('ct_digest', $ct_id)->update([
+                'file_status_id' => 4,
+                'elapsed_time' => $ct_elapsed_time,
+            ]);
+        }
+
+        foreach ($exit_normally_ct_id as $ct_id) {
+            # get ct's elapsed time
+            $res = $client->request('GET', 'http://v1.43/containers/' . $ct_id . '/json', [
+                'curl' => [
+                    CURLOPT_UNIX_SOCKET_PATH => '/var/run/docker.sock'
+                ]
+            ]);
+            $ct_info = json_decode($res->getBody()->getContents());
+            $ct_elapsed_time = Carbon::parse($ct_info->State->FinishedAt)->diffInSeconds(Carbon::parse($ct_info->State->StartedAt));
+
+            # save to database's uploads table
+            Upload::where('ct_digest', $ct_id)->update([
+                'file_status_id' => 3,
+                'elapsed_time' => $ct_elapsed_time,
+            ]);
+        }
     }
 }
