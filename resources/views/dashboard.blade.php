@@ -55,8 +55,8 @@
                         <tr>
                             <th class="px-6 py-4 text-left">id</th>
                             <th class="px-6 py-4 text-left">uploaded files</th>
-                            <th class="px-6 py-4 text-left">status</th>
                             <th class="px-6 py-4 text-left">processed files</th>
+                            <th class="px-6 py-4 text-left">status</th>
                         </tr>
                     </thead>
                     <tbody>
