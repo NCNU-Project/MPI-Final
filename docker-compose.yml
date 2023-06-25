@@ -6,7 +6,7 @@ services:
             dockerfile: Dockerfile
             args:
                 WWWGROUP: "${WWWGROUP}"
-        image: sail-8.2/app
+        image: efficacy38/mpi-final
         extra_hosts:
             - "host.docker.internal:host-gateway"
         ports:
