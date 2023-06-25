@@ -55,11 +55,11 @@ class UploadsController extends Controller
         // better then just using hard-coded path.
         $res = $client->request('POST', 'http://v1.43/containers/create', [
             'json' => [
-                "Image" => "test",
+                "Image" => config('containers.master'),
                 "Cmd" => ["-f", $upload_path, "-d", 'video/' . $file_uuid . "-processed.mp4"],
                 "HostConfig" => [
                     "Binds" => [
-                        "/home/efficacy38/Projects/Course/NCNU/Mpi/mpi-final/storage/app/public/videos:/videos"
+                        config('containers.video_path') . ":/videos"
                     ]
                 ]
             ],
