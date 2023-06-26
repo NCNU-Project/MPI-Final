@@ -85,7 +85,6 @@ class UploadsController extends Controller
         // start execution
         $upload->file_status()->associate(FileStatus::find(2));
         $upload->save();
-
         return back();
     }
 
@@ -137,22 +136,6 @@ class UploadsController extends Controller
             return $item->Id;
         }, $exit_abnormally_ct_status);
 
-        foreach ($exit_abnormally_ct_id as $ct_id) {
-            # get ct's elapsed time
-            $res = $client->request('GET', 'http://v1.43/containers/' . $ct_id . '/json', [
-                'curl' => [
-                    CURLOPT_UNIX_SOCKET_PATH => '/var/run/docker.sock'
-                ]
-            ]);
-            $ct_info = json_decode($res->getBody()->getContents());
-            $ct_elapsed_time = $ct_info->State->FinishedAt - $ct_info->State->StartedAt;
-            # save to database's uploads table
-            Upload::where('ct_digest', $ct_id)->update([
-                'file_status_id' => 4,
-                'elapsed_time' => $ct_elapsed_time,
-            ]);
-        }
-
         foreach ($exit_normally_ct_id as $ct_id) {
             # get ct's elapsed time
             $res = $client->request('GET', 'http://v1.43/containers/' . $ct_id . '/json', [
@@ -169,5 +152,7 @@ class UploadsController extends Controller
                 'elapsed_time' => $ct_elapsed_time,
             ]);
         }
+
+        Upload::whereIn('ct_digest', $exit_abnormally_ct_id)->update(['file_status_id' => 4]);
     }
 }
