@@ -1,6 +1,6 @@
 resource "digitalocean_droplet" "msater-1" {
   image = "ubuntu-20-04-x64"
-  name = "www-1"
+  name = "master-1"
   region = "sgp1"
   size = "s-1vcpu-1gb"
   ssh_keys = [
@@ -18,15 +18,17 @@ resource "digitalocean_droplet" "msater-1" {
   provisioner "remote-exec" {
     inline = [
       "export PATH=$PATH:/usr/bin",
-      # install nginx
       "sudo apt update",
-      "sudo apt install -y nginx"
+      "sudo apt install -y curl",
+      # install docker
+      "curl -L get.docker.com | sudo bash",
+      "docker run -d --restart always -p 2222:2222 ghcr.io/efficacy38/mpi-worker:v1.1"
     ]
   }
 }
 
 resource "digitalocean_droplet" "workers" {
-  count = 1
+  count = 3
   image = "ubuntu-20-04-x64"
   name = "web-${count.index + 1}"
   region = "sgp1"
@@ -51,7 +53,7 @@ resource "digitalocean_droplet" "workers" {
       "sudo apt install -y curl",
       # install docker
       "curl -L get.docker.com | sudo bash",
-      "docker run -d --restart always -p 2222:2222 ghcr.io/efficacy38/mpi-worker"
+      "docker run -d --restart always -p 2222:2222 ghcr.io/efficacy38/mpi-worker:v1.1"
     ]
   }
 }
