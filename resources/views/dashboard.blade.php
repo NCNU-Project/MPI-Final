@@ -56,6 +56,7 @@
                             <th class="px-6 py-4 text-left">id</th>
                             <th class="px-6 py-4 text-left">uploaded files</th>
                             <th class="px-6 py-4 text-left">processed files</th>
+                            <th class="px-6 py-4 text-left">elapsed time(s)</th>
                             <th class="px-6 py-4 text-left">status</th>
                         </tr>
                     </thead>
@@ -73,6 +74,7 @@
                                     {{ $upload->filename }}
                                 </a>
                             </td>
+                            <td class="px-6 py-4">{{ $upload->elapsed_time }}</td>
                             <td class="px-6 py-4">{{ $upload->file_status->status }}</td>
                         </tr>
                         @endforeach

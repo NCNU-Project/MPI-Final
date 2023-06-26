@@ -39,6 +39,7 @@ if [ -z "$FILENAME" ] || [ -z "$PROCESSED_NAME" ]; then
 else
   printf "filename is [%s], processed_name is [%s]\n" "$FILENAME" "$PROCESSED_NAME"
   echo "container start"
+  ls -al $FILENAME
   sleep 10
   echo "container end"
 fi
