@@ -39,8 +39,7 @@ if [ -z "$FILENAME" ] || [ -z "$PROCESSED_NAME" ]; then
 else
   printf "filename is [%s], processed_name is [%s]\n" "$FILENAME" "$PROCESSED_NAME"
   echo "container start"
-  ls -al $FILENAME
-  sleep 10
+  mpirun -n $(wc -l videos/hostfile | awk '{print $1}') -f /videos/hostfile /video_scaling.o "$FILENAME" "$PROCESSED_NAME"
   echo "container end"
 fi
 

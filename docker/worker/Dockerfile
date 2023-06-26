@@ -1,7 +1,5 @@
 FROM ubuntu:22.04
 
-WORKDIR /file_transfer
-
 RUN apt-get update -y && apt-get install -y \
   gcc \
   ffmpeg \
@@ -16,5 +14,9 @@ RUN sh -c "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQjQ9CPmPxt1OvmEv7SfcmAZG
 RUN chown runner:runner ~runner/.ssh/authorized_keys
 
 RUN mkdir /run/sshd
+
+ADD ./video_scaling.c /
+
+RUN mpicc /video_scaling.c -o /video_scaling.o
 
 ENTRYPOINT [ "/usr/sbin/sshd", "-D", "-p", "2222" ]
